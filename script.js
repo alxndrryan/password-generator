@@ -1,8 +1,8 @@
 // DOM elements
 const resultEl = document.getElementById('result');
 const lengthEl = document.getElementById('length');
-const lowerEl = document.getElementById('lower');
-const upperEl = document.getElementById('upper');
+const lowercaseEl = document.getElementById('lowercase');
+const uppercaseEl = document.getElementById('uppercase');
 const numbersEl = document.getElementById('numbers');
 const symbolsEl = document.getElementById('symbols');
 const generateEl = document.getElementById('generate');
@@ -15,18 +15,70 @@ const randomFunc = {
     symbol: getRandomSymbol
 };
 
-console.log(lower);
+// Generate event listen
+generateEl.addEventListener('click', () => {
+    const length = +lengthEl.value;
+    const hasLower = lowercaseEl.checked;
+    const hasUpper = uppercaseEl.checked;
+    const hasNumber = numbersEl.checked;
+    const hasSymbol = symbolsEl.checked;
+    
+    resultEl.innerText = generatePassword(hasLower, hasUpper, hasNumber, hasSymbol, length) 
+});
 
+// Copy password to clipboard
+clipboardEl.addEventListener('click', () => {
+    const textarea = document.createElement('textarea');
+    const password = resultEl.innerText;
+
+    if(!password) {
+        return;
+    }
+
+    textarea.value = password;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    textarea.remove();
+    alert('Password copied to clipboard!')
+})
+
+// Generate password function
 function generatePassword(lower, upper, number, symbol, length) {
+    // 1. Init pw var
+    // 2. Filter out unchecked types
+    // 3. Loop over length call generator function for each type
+    // 4. Add final pw to the pw var and return
+
+    let generatedPassword = '';
 
     const typesCount = lower + upper + number + symbol;
 
-    console.log(typesCount);
+    const typesArr = [{lower}, {upper}, {number}, {symbol}].filter(item => Object.values(item)[0]);
 
-    const typesArr = [lower, upper, number, symbol];
+    if(typesCount === 0) {
+        return '';
+    }
 
-    console.log(typesArr);
+    for(let i = 0; i < length; i += typesCount) {
+        typesArr.forEach(type => {
+            const funcName = Object.keys(type)[0];
+
+            // console.log('funcName: ', funcName)
+
+            generatedPassword += randomFunc[funcName]();
+        });
+    }
+
+    const finalPassword = generatedPassword.slice(0, length);
+
+    console.log(finalPassword);
+
+    return finalPassword;
+
 }
+
+
 
 generatePassword();
 // Generator Functions - http://www.net-comber.com/charset.html
